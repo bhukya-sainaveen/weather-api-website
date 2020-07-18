@@ -10,14 +10,22 @@
            $error = "No city entered";
       }
       else {
-          $url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=82179e3e89b9838ea3814059b3073e1c";
+          $url = "https://api.openweathermap.org/data/2.5/weather?q=".urlencode($city)."&appid=82179e3e89b9838ea3814059b3073e1c";
           # Request weather data
-          $data = file_get_contents($url);
-          # Deserialize the json data to php array
-          $array = json_decode($data, true);
-          # Get the weather description from json array
-          $desc = $array["weather"][0]["description"];
-          $weather = "$desc";
+          # @ is used to suppress warnings and errors displayed in website
+          $data = @file_get_contents($url, false);
+          if($data) {
+              # Deserialize the json data to php array
+              $array = json_decode($data, true);
+              # Get the weather description from json array
+              $desc = $array["weather"][0]["description"];
+              $tempInKelvin = $array["main"]["temp"];
+              $tempToCelsius = intval($tempInKelvin - 273.15);
+              $weather = "There is $desc in $city and the temperature is $tempToCelsius &degC";
+          }
+          else {
+              $error = "Invalid City";
+          }
       }
   }
   
